@@ -1,0 +1,376 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Mood - Habit Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    <style>
+        .edit-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-title {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .mood-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .mood-option:hover {
+            border-color: #4CAF50;
+            background: #f8f9fa;
+        }
+
+        .mood-option.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .mood-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .mood-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .mood-definition {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            margin-bottom: 10px;
+            z-index: 1;
+        }
+
+        .mood-option:hover .mood-definition {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 100px;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        .form-group textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .intensity-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .intensity-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .save-btn {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .cancel-btn {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background: #e9ecef;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #fff3f3;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mood-category {
+            margin-bottom: 20px;
+        }
+
+        .mood-category-title {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <header class="banner">
+        <img src="{% static 'tracker/banner.png' %}" alt="Habits Banner" class="banner-img">
+    </header>
+
+    <main class="container">
+        <div class="edit-container">
+            <h1 class="edit-title">
+                <i class="fas fa-edit"></i>
+                Edit Mood Entry
+            </h1>
+
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="mood" id="selected_mood" value="{{ mood.mood }}">
+
+                <div class="mood-category">
+                    <div class="mood-category-title">Positive Emotions</div>
+                    <div class="mood-grid">
+                        {% for value, label in mood.MOOD_CHOICES %}
+                            {% if value in 'joyful,grateful,peaceful,hopeful,inspired,confident,excited,proud,loved,energetic,content,optimistic,motivated,focused,creative'|split:',' %}
+                            <div class="mood-option {% if value == mood.mood %}selected{% endif %}" data-mood="{{ value }}">
+                                <div class="mood-icon">
+                                    {% if value == 'joyful' %}
+                                        <i class="fas fa-smile"></i>
+                                    {% elif value == 'grateful' %}
+                                        <i class="fas fa-heart"></i>
+                                    {% elif value == 'peaceful' %}
+                                        <i class="fas fa-peace"></i>
+                                    {% elif value == 'hopeful' %}
+                                        <i class="fas fa-dove"></i>
+                                    {% elif value == 'inspired' %}
+                                        <i class="fas fa-lightbulb"></i>
+                                    {% elif value == 'confident' %}
+                                        <i class="fas fa-crown"></i>
+                                    {% elif value == 'excited' %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif value == 'proud' %}
+                                        <i class="fas fa-trophy"></i>
+                                    {% elif value == 'loved' %}
+                                        <i class="fas fa-heart"></i>
+                                    {% elif value == 'energetic' %}
+                                        <i class="fas fa-bolt"></i>
+                                    {% elif value == 'content' %}
+                                        <i class="fas fa-sun"></i>
+                                    {% elif value == 'optimistic' %}
+                                        <i class="fas fa-rainbow"></i>
+                                    {% elif value == 'motivated' %}
+                                        <i class="fas fa-rocket"></i>
+                                    {% elif value == 'focused' %}
+                                        <i class="fas fa-bullseye"></i>
+                                    {% elif value == 'creative' %}
+                                        <i class="fas fa-paint-brush"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="mood-name">{{ label }}</div>
+                                <div class="mood-definition">{{ mood.MOOD_DEFINITIONS|get_item:value }}</div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mood-category">
+                    <div class="mood-category-title">Neutral Emotions</div>
+                    <div class="mood-grid">
+                        {% for value, label in mood.MOOD_CHOICES %}
+                            {% if value in 'neutral,contemplative,balanced,calm,mindful'|split:',' %}
+                            <div class="mood-option {% if value == mood.mood %}selected{% endif %}" data-mood="{{ value }}">
+                                <div class="mood-icon">
+                                    {% if value == 'neutral' %}
+                                        <i class="fas fa-meh"></i>
+                                    {% elif value == 'contemplative' %}
+                                        <i class="fas fa-brain"></i>
+                                    {% elif value == 'balanced' %}
+                                        <i class="fas fa-balance-scale"></i>
+                                    {% elif value == 'calm' %}
+                                        <i class="fas fa-cloud"></i>
+                                    {% elif value == 'mindful' %}
+                                        <i class="fas fa-om"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="mood-name">{{ label }}</div>
+                                <div class="mood-definition">{{ mood.MOOD_DEFINITIONS|get_item:value }}</div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mood-category">
+                    <div class="mood-category-title">Challenging Emotions</div>
+                    <div class="mood-grid">
+                        {% for value, label in mood.MOOD_CHOICES %}
+                            {% if value in 'anxious,stressed,frustrated,sad,angry,lonely,tired,overwhelmed,disappointed,confused,worried,irritable,nervous,insecure,exhausted'|split:',' %}
+                            <div class="mood-option {% if value == mood.mood %}selected{% endif %}" data-mood="{{ value }}">
+                                <div class="mood-icon">
+                                    {% if value == 'anxious' %}
+                                        <i class="fas fa-flushed"></i>
+                                    {% elif value == 'stressed' %}
+                                        <i class="fas fa-burn"></i>
+                                    {% elif value == 'frustrated' %}
+                                        <i class="fas fa-angry"></i>
+                                    {% elif value == 'sad' %}
+                                        <i class="fas fa-sad-tear"></i>
+                                    {% elif value == 'angry' %}
+                                        <i class="fas fa-poo"></i>
+                                    {% elif value == 'lonely' %}
+                                        <i class="fas fa-user-slash"></i>
+                                    {% elif value == 'tired' %}
+                                        <i class="fas fa-bed"></i>
+                                    {% elif value == 'overwhelmed' %}
+                                        <i class="fas fa-weight"></i>
+                                    {% elif value == 'disappointed' %}
+                                        <i class="fas fa-frown"></i>
+                                    {% elif value == 'confused' %}
+                                        <i class="fas fa-question"></i>
+                                    {% elif value == 'worried' %}
+                                        <i class="fas fa-worried"></i>
+                                    {% elif value == 'irritable' %}
+                                        <i class="fas fa-grumpy"></i>
+                                    {% elif value == 'nervous' %}
+                                        <i class="fas fa-shaking"></i>
+                                    {% elif value == 'insecure' %}
+                                        <i class="fas fa-shield-alt"></i>
+                                    {% elif value == 'exhausted' %}
+                                        <i class="fas fa-battery-empty"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="mood-name">{{ label }}</div>
+                                <div class="mood-definition">{{ mood.MOOD_DEFINITIONS|get_item:value }}</div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="intensity">Intensity (1-10)</label>
+                    <input type="range" id="intensity" name="intensity" min="1" max="10" value="{{ mood.intensity }}" class="intensity-slider">
+                    <div class="intensity-labels">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" placeholder="How are you feeling?">{{ mood.notes }}</textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="save-btn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'track_moods' %}" class="cancel-btn">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const moodOptions = document.querySelectorAll('.mood-option');
+            const selectedMoodInput = document.getElementById('selected_mood');
+
+            moodOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    moodOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update hidden input value
+                    selectedMoodInput.value = this.dataset.mood;
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

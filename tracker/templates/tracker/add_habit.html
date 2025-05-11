@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Habit</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+  <style>
+    .habit-form {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    .category-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .category {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .category.selected {
+      background-color: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+
+    .day-selector {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .day {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .day.selected {
+      background-color: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 14px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+
+    .back-btn {
+      background-color: #f8f9fa;
+      color: #333;
+      border: 2px solid #e0e0e0;
+    }
+
+    .back-btn:hover {
+      background-color: #e9ecef;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-header h2 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      color: #666;
+    }
+
+    .repetitions-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .repetitions-input input[type="number"] {
+      width: 80px;
+      padding: 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .repetitions-input label {
+      margin-bottom: 0;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header class="banner">
+    <img src="{% static 'tracker/banner.png' %}" alt="Habits Banner" class="banner-img">
+  </header>
+
+  <main class="container">
+    <div class="form-container">
+      <h1 class="form-title">Add New Habit</h1>
+
+      {% if error %}
+      <div class="alert">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="habit-form fade-in" id="habitForm">
+        {% csrf_token %}
+        <div class="form-header">
+          <h2>Add a New Habit</h2>
+          <p>Track your progress and build better habits</p>
+        </div>
+
+        <div class="form-group">
+          {{ form.name.label_tag }}
+          {{ form.name }}
+          {% if form.name.errors %}
+          <div class="error-message">{{ form.name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.description.label_tag }}
+          {{ form.description }}
+          {% if form.description.errors %}
+          <div class="error-message">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <div class="category-selector">
+            {% for value, label in form.fields.category.choices %}
+            <div class="category" data-value="{{ value }}">
+              <i class="fas fa-{% if value == 'health' %}heartbeat{% elif value == 'fitness' %}dumbbell{% elif value == 'learning' %}book{% else %}user{% endif %}"></i>
+              {{ label }}
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="category" id="categoryInput" required>
+          {% if form.category.errors %}
+          <div class="error-message">{{ form.category.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.inspiration.label_tag }}
+          {{ form.inspiration }}
+          {% if form.inspiration.errors %}
+          <div class="error-message">{{ form.inspiration.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>Select Days</label>
+          <div class="day-selector">
+            <div class="day" data-day="monday">Mon</div>
+            <div class="day" data-day="tuesday">Tue</div>
+            <div class="day" data-day="wednesday">Wed</div>
+            <div class="day" data-day="thursday">Thu</div>
+            <div class="day" data-day="friday">Fri</div>
+            <div class="day" data-day="saturday">Sat</div>
+            <div class="day" data-day="sunday">Sun</div>
+          </div>
+          <input type="hidden" name="frequency" id="frequencyInput" value="daily" required>
+          {% if form.frequency.errors %}
+          <div class="error-message">{{ form.frequency.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label>Required Repetitions per Day</label>
+          <div class="repetitions-input">
+            <input type="number" name="required_repetitions" id="requiredRepetitions" min="1" max="100" value="1" required>
+            <span>times per day</span>
+          </div>
+          {% if form.required_repetitions.errors %}
+          <div class="error-message">{{ form.required_repetitions.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="action-btn submit-btn">Save Habit</button>
+          <a href="{% url 'home' %}" class="action-btn back-btn">Back to Home</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Category selection
+    const categoryElements = document.querySelectorAll('.category');
+    const categoryInput = document.getElementById('categoryInput');
+
+    categoryElements.forEach(el => {
+      el.addEventListener('click', () => {
+        categoryElements.forEach(cat => cat.classList.remove('selected'));
+        el.classList.add('selected');
+        categoryInput.value = el.dataset.value;
+      });
+    });
+
+    // Day selection
+    const dayElements = document.querySelectorAll('.day');
+    const frequencyInput = document.getElementById('frequencyInput');
+    let selectedDays = [];
+
+    dayElements.forEach(el => {
+      el.addEventListener('click', () => {
+        el.classList.toggle('selected');
+        const day = el.dataset.day;
+        
+        if (el.classList.contains('selected')) {
+          selectedDays.push(day);
+        } else {
+          selectedDays = selectedDays.filter(d => d !== day);
+        }
+        
+        // Update frequency based on number of selected days
+        if (selectedDays.length === 7) {
+          frequencyInput.value = 'daily';
+        } else if (selectedDays.length === 5) {
+          frequencyInput.value = '5';
+        } else if (selectedDays.length === 3) {
+          frequencyInput.value = '3';
+        } else {
+          frequencyInput.value = 'daily'; // Default to daily if not matching predefined frequencies
+        }
+      });
+    });
+
+    // Form validation
+    document.getElementById('habitForm').addEventListener('submit', (e) => {
+      if (!categoryInput.value) {
+        e.preventDefault();
+        alert('Please select a category');
+      }
+      if (selectedDays.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one day for your habit');
+      }
+      const repetitions = document.getElementById('requiredRepetitions').value;
+      if (repetitions < 1 || repetitions > 100) {
+        e.preventDefault();
+        alert('Please enter a valid number of repetitions (1-100)');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Moods - Habit Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    <style>
+        .moods-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .mood-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mood-info {
+            flex: 1;
+        }
+
+        .mood-type {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mood-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .mood-notes {
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .mood-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-link {
+            color: #4CAF50;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .edit-link:hover {
+            background: #e8f5e9;
+            color: #45a049;
+        }
+
+        .delete-link {
+            color: #dc3545;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .delete-link:hover {
+            background: #fff3f3;
+            color: #c82333;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: #e9ecef;
+        }
+
+        .no-moods {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-moods p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .add-mood-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .add-mood-btn:hover {
+            background: #45a049;
+        }
+
+        .mood-icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <header class="banner">
+        <img src="{% static 'tracker/banner.png' %}" alt="Habits Banner" class="banner-img">
+    </header>
+
+    <main class="container">
+        <a href="{% url 'home' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        {% if moods %}
+            <div class="moods-container">
+                {% for mood in moods %}
+                    <div class="mood-card">
+                        <div class="mood-info">
+                            <div class="mood-type">
+                                {% if mood.mood == 'joyful' %}
+                                    <i class="fas fa-smile mood-icon"></i>
+                                {% elif mood.mood == 'grateful' %}
+                                    <i class="fas fa-heart mood-icon"></i>
+                                {% elif mood.mood == 'peaceful' %}
+                                    <i class="fas fa-peace mood-icon"></i>
+                                {% elif mood.mood == 'neutral' %}
+                                    <i class="fas fa-meh mood-icon"></i>
+                                {% elif mood.mood == 'anxious' %}
+                                    <i class="fas fa-flushed mood-icon"></i>
+                                {% elif mood.mood == 'sad' %}
+                                    <i class="fas fa-sad-tear mood-icon"></i>
+                                {% endif %}
+                                {{ mood.get_mood_display }}
+                            </div>
+                            <div class="mood-date">{{ mood.created_at|date:"F j, Y" }}</div>
+                            {% if mood.notes %}
+                                <div class="mood-notes">{{ mood.notes }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mood-actions">
+                            <a href="{% url 'edit_mood' mood.id %}" class="edit-link" title="Edit Mood">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_mood' mood.id %}" class="delete-link" title="Delete Mood">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-moods">
+                <p>You haven't recorded any moods yet.</p>
+                <a href="{% url 'record_mood' %}" class="add-mood-btn">
+                    <i class="fas fa-plus"></i> Record Your First Mood
+                </a>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html> 

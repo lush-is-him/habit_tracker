@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Habit Added</title>
+  <style>
+    body {
+      background: #f0fff0;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .message-box {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: slideUp 0.7s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); }
+      to { transform: translateY(0); }
+    }
+
+    h1 {
+      color: #4CAF50;
+      font-size: 1.8rem;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="message-box">
+    <h1>🎉 Habit Saved Successfully!</h1>
+    <a href="{% url 'add_habit' %}">Add Another</a>
+  </div>
+</body>
+</html>

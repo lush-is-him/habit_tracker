@@ -1,0 +1,597 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Habits - Habit Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    <style>
+        .tracking-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .habit-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            padding: 25px;
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .habit-title {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+
+        .habit-category {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #f0f0f0;
+            font-size: 14px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-day {
+            text-align: center;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .calendar-cell {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s;
+        }
+
+        .calendar-cell.completed {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+
+        .repetition-counter {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .repetition-controls {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .decrease-btn,
+        .increase-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .decrease-btn:hover,
+        .increase-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .calendar-cell.completed .repetition-counter,
+        .calendar-cell.completed .decrease-btn,
+        .calendar-cell.completed .increase-btn {
+            color: white;
+        }
+
+        .calendar-cell.completed .decrease-btn:hover,
+        .calendar-cell.completed .increase-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .habit-info {
+            margin: 15px 0;
+        }
+
+        .habit-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .habit-repetitions {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: #e9ecef;
+        }
+
+        .no-habits {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-habits p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .add-habit-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .add-habit-btn:hover {
+            background: #45a049;
+        }
+
+        .progress-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .weekly-progress {
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .weekly-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.5s ease;
+            width: 0%;
+            transform-origin: left;
+        }
+
+        .weekly-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .daily-progress-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .daily-progress {
+            aspect-ratio: 1;
+            position: relative;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 10px;
+        }
+
+        .daily-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, #4CAF50, #45a049);
+            transition: height 0.5s ease;
+            height: 0%;
+            transform-origin: bottom;
+        }
+
+        .daily-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: #333;
+        }
+
+        .daily-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .daily-count {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .daily-progress.completed .daily-fill {
+            background: linear-gradient(to top, #4CAF50, #45a049);
+        }
+
+        .daily-progress.completed .daily-content {
+            color: white;
+        }
+
+        .repetition-controls {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .decrease-btn,
+        .increase-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .decrease-btn:hover,
+        .increase-btn:hover {
+            background: white;
+            color: #333;
+        }
+
+        .daily-progress.completed .decrease-btn,
+        .daily-progress.completed .increase-btn {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .daily-progress.completed .decrease-btn:hover,
+        .daily-progress.completed .increase-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes fillUp {
+            from { height: 0%; }
+            to { height: var(--fill-height); }
+        }
+
+        @keyframes fillRight {
+            from { width: 0%; }
+            to { width: var(--fill-width); }
+        }
+
+        .daily-fill.animating {
+            animation: fillUp 0.5s ease-out forwards;
+        }
+
+        .weekly-fill.animating {
+            animation: fillRight 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <header class="banner">
+        <img src="{% static 'tracker/banner.png' %}" alt="Habits Banner" class="banner-img">
+    </header>
+
+    <main class="container">
+        <a href="{% url 'home' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        {% if habits %}
+            <div class="tracking-container">
+                {% for habit in habits %}
+                    <div class="habit-card">
+                        <div class="habit-header">
+                            <h2 class="habit-title">{{ habit.name }}</h2>
+                            <div class="habit-actions">
+                                <span class="habit-category">
+                                    <i class="fas fa-{{ habit.category }}"></i>
+                                    {{ habit.get_category_display }}
+                                </span>
+                                <a href="{% url 'edit_habit' habit.id %}" class="edit-link" title="Edit Habit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_habit' habit.id %}" class="delete-link" title="Delete Habit">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="habit-info">
+                            <div class="habit-description">{{ habit.description }}</div>
+                            <div class="habit-repetitions">
+                                Required: {{ habit.required_repetitions }} times per day
+                            </div>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-title">Weekly Progress</div>
+                            <div class="weekly-progress">
+                                <div class="weekly-fill" style="width: 0%">
+                                    <span class="weekly-text">{{ habit.get_weekly_progress_text }}</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-title">Daily Progress</div>
+                            <div class="daily-progress-container" data-habit-id="{{ habit.id }}" 
+                                 data-required-repetitions="{{ habit.required_repetitions }}"
+                                 data-frequency="{{ habit.frequency }}"
+                                 data-weekly-frequency="{{ habit.weekly_frequency }}">
+                                {% for day in "MTWTFSS" %}
+                                    <div class="daily-progress" data-day="{{ forloop.counter }}">
+                                        <div class="daily-fill" style="height: 0%"></div>
+                                        <div class="daily-content">
+                                            <div class="daily-label">{{ day }}</div>
+                                            <div class="daily-count">0/{{ habit.required_repetitions }}</div>
+                                            <div class="repetition-controls">
+                                                <button class="decrease-btn" title="Decrease">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <button class="increase-btn" title="Increase">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-habits">
+                <p>You haven't added any habits yet.</p>
+                <a href="{% url 'add_habit' %}" class="add-habit-btn">
+                    <i class="fas fa-plus"></i> Add Your First Habit
+                </a>
+            </div>
+        {% endif %}
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const habitCards = document.querySelectorAll('.habit-card');
+            
+            habitCards.forEach(card => {
+                const dailyContainer = card.querySelector('.daily-progress-container');
+                const habitId = dailyContainer.dataset.habitId;
+                const requiredRepetitions = parseInt(dailyContainer.dataset.requiredRepetitions);
+                const frequency = dailyContainer.dataset.frequency;
+                const weeklyFrequency = parseInt(dailyContainer.dataset.weeklyFrequency);
+                const weeklyFill = card.querySelector('.weekly-fill');
+                const weeklyText = card.querySelector('.weekly-text');
+                
+                // Load saved completion status from localStorage
+                const dailyProgresses = dailyContainer.querySelectorAll('.daily-progress');
+                
+                dailyProgresses.forEach(progress => {
+                    const day = progress.dataset.day;
+                    const savedRepetitions = localStorage.getItem(`habit_${habitId}_day_${day}`);
+                    if (savedRepetitions) {
+                        const repetitions = parseInt(savedRepetitions);
+                        updateDailyProgress(progress, repetitions, requiredRepetitions);
+                    }
+                });
+                
+                // Initial weekly progress update
+                updateWeeklyProgress(weeklyFill, weeklyText, frequency, weeklyFrequency);
+                
+                // Add event listeners for daily progress controls
+                dailyProgresses.forEach(progress => {
+                    const decreaseBtn = progress.querySelector('.decrease-btn');
+                    const increaseBtn = progress.querySelector('.increase-btn');
+                    const counter = progress.querySelector('.daily-count');
+                    
+                    let reps = 0;
+                    const required = parseInt(counter.textContent.split('/')[1]);
+                    
+                    increaseBtn.addEventListener('click', () => {
+                        if (reps < required) reps++;
+                        updateDailyProgress(progress, reps, required);
+                        saveProgress(habitId, progress.dataset.day, reps);
+                        updateWeeklyProgress(weeklyFill, weeklyText, frequency, weeklyFrequency);
+                    });
+                    
+                    decreaseBtn.addEventListener('click', () => {
+                        if (reps > 0) reps--;
+                        updateDailyProgress(progress, reps, required);
+                        saveProgress(habitId, progress.dataset.day, reps);
+                        updateWeeklyProgress(weeklyFill, weeklyText, frequency, weeklyFrequency);
+                    });
+                });
+            });
+            
+            function updateWeeklyProgress(fill, text, frequency, weeklyFrequency) {
+                const dailyProgresses = document.querySelectorAll('.daily-progress');
+                let totalCompletions = 0;
+
+                if (frequency === 'daily') {
+                    // Count days the habit was done
+                    dailyProgresses.forEach(progress => {
+                        const counter = progress.querySelector('.daily-count');
+                        const currentRepetitions = parseInt(counter.textContent.split('/')[0]);
+                        if (currentRepetitions > 0) totalCompletions += 1;
+                    });
+
+                    let percentage = (totalCompletions / 7) * 100;
+                    fill.style.setProperty('--fill-width', `${percentage}%`);
+                    text.textContent = `${totalCompletions}/7 days`;
+                } else {
+                    // Count total times the habit was done
+                    dailyProgresses.forEach(progress => {
+                        const counter = progress.querySelector('.daily-count');
+                        const currentRepetitions = parseInt(counter.textContent.split('/')[0]);
+                        totalCompletions += currentRepetitions;
+                    });
+
+                    let cappedCompletions = Math.min(totalCompletions, weeklyFrequency);
+                    let percentage = (cappedCompletions / weeklyFrequency) * 100;
+                    fill.style.setProperty('--fill-width', `${percentage}%`);
+                    text.textContent = `${cappedCompletions}/${weeklyFrequency} times`;
+                }
+
+                // Animate
+                fill.classList.remove('animating');
+                void fill.offsetWidth;
+                fill.classList.add('animating');
+            }
+            
+            function updateDailyProgress(progress, repetitions, required) {
+                const counter = progress.querySelector('.daily-count');
+                const fill = progress.querySelector('.daily-fill');
+                
+                const safeReps = Math.min(repetitions, required);
+                const percentage = (safeReps / required) * 100;
+                
+                counter.textContent = `${safeReps}/${required}`;
+                
+                // Animation
+                fill.classList.remove('animating');
+                void fill.offsetWidth;
+                fill.style.setProperty('--fill-height', `${percentage}%`);
+                fill.classList.add('animating');
+
+                progress.classList.toggle('completed', percentage === 100);
+            }
+            
+            function saveProgress(habitId, day, repetitions) {
+                // Save to localStorage
+                localStorage.setItem(`habit_${habitId}_day_${day}`, repetitions);
+                
+                // Save to server
+                const today = new Date().toISOString().split('T')[0];
+                fetch(`/update_habit_completion/${habitId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `date=${today}&completed_repetitions=${repetitions}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Update weekly progress from server response
+                        const weeklyFill = document.querySelector(`[data-habit-id="${habitId}"]`).closest('.habit-card').querySelector('.weekly-fill');
+                        const weeklyText = weeklyFill.querySelector('.weekly-text');
+                        weeklyFill.style.width = `${data.weekly_progress}%`;
+                        weeklyText.textContent = data.weekly_progress_text;
+                    }
+                });
+            }
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html> 

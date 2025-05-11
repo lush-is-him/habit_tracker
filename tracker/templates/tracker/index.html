@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habit Tracker</title>
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        .habit-list {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .habit-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .habit-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .habit-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .habit-icon {
+            font-size: 24px;
+        }
+
+        .habit-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .habit-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .habit-details {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .habit-detail {
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .habit-inspiration {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .no-habits {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="banner">
+        <img src="{% static 'tracker/banner.png' %}" alt="Habits Banner" class="banner-img">
+    </header>
+    
+    <main class="container">
+        <section class="intro">
+            <blockquote>
+                <div class="quote-line"></div>
+                <p>
+                    "Sow a thought, reap an action; sow an action, reap a habit; sow a habit, reap a character; sow a character, reap a destiny."
+                    <span class="author">- <strong>Stephen R. Covey</strong></span>
+                </p>
+            </blockquote>
+        </section>
+
+        <!-- the buttons -->
+        <div class="button-group">
+            <button class="action-btn add-habit" onclick="goTo('add-habit')">Add Habit</button>
+            <button class="action-btn record-mood" onclick="goTo('record-mood')">Record Mood</button>
+        </div>
+        
+        <div class="button-group">
+            <button class="action-btn track-habit" onclick="goTo('track-habits')">Track Habits</button>
+            <button class="action-btn track-mood" onclick="goTo('track-moods')">Track Moods</button>
+        </div>
+         
+        <script>
+            function goTo(page) {
+                const routes = {
+                    'add-habit': "{% url 'add_habit' %}",
+                    'record-mood': "{% url 'record_mood' %}",
+                    'track-habits': "{% url 'track_habits' %}",
+                    'track-moods': "{% url 'track_moods' %}"
+                };
+                window.location.href = routes[page];
+            }
+        </script>
+        
+        <div class="habit-list">
+            {% if habits %}
+                {% for habit in habits %}
+                    <div class="habit-card">
+                        <div class="habit-header">
+                            <i class="fas fa-{% if habit.category == 'health' %}heartbeat{% elif habit.category == 'fitness' %}dumbbell{% elif habit.category == 'learning' %}book{% else %}user{% endif %} habit-icon"></i>
+                            <h3 class="habit-name">{{ habit.name }}</h3>
+                        </div>
+                        <p class="habit-description">{{ habit.description }}</p>
+                        <div class="habit-details">
+                            <span class="habit-detail">{{ habit.get_category_display }}</span>
+                            <span class="habit-detail">{{ habit.get_frequency_display }}</span>
+                        </div>
+                        {% if habit.inspiration %}
+                            <p class="habit-inspiration">"{{ habit.inspiration }}"</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-habits">
+                    <p>You haven't added any habits yet. Click "Add Habit" to get started!</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
+
