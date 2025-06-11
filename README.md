@@ -1,29 +1,30 @@
 # Habit Tracker
 
-A Django-based web application for tracking daily and weekly habits, with mood tracking features.
+A Django-based web application for tracking habits and moods, helping you build better routines and monitor your emotional well-being.
 
 ## Features
 
-- Track daily and weekly habits
-- Visual progress tracking with animated progress bars
-- Mood tracking with detailed emotion categories
-- Responsive design for all devices
-- Local storage for habit completions
-- Server-side persistence of habit data
+### Habit Tracking
+- Create and manage daily, weekly, or custom frequency habits
+- Track habit completions with repetition counts
+- View habit progress in calendar format
+- Categorize habits (Health, Fitness, Learning, Personal)
+- Set required repetitions for each habit
+- Visual progress indicators
 
-## Technologies Used
+### Mood Tracking
+- Record daily moods with intensity levels (0-10)
+- Track emotional patterns over time
+- Add notes to mood entries
+- Modern card-based layout for mood history
+- Visual intensity indicators
+- Edit and delete mood entries
 
-- Django 5.2
-- Python
-- HTML5/CSS3
-- JavaScript
-- SQLite (development)
-
-## Installation
+## Getting Started
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/habit_tracker.git
+git clone https://github.com/lush-is-him/habit_tracker.git
 cd habit_tracker
 ```
 
@@ -48,16 +49,27 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-6. Visit http://127.0.0.1:8000/ in your browser
+6. Visit `http://localhost:8000` in your browser
 
 ## Usage
 
-1. Add new habits with specific frequencies (daily or weekly)
-2. Track habit completions using the interactive interface
-3. Monitor progress with visual progress bars
-4. Record your mood and track emotional patterns
-5. View your habit and mood history
+### Habit Management
+- Add new habits with custom frequencies and repetition requirements
+- Track daily completions
+- View progress in calendar format
+- Edit or delete habits as needed
+
+### Mood Tracking
+- Record your daily mood with intensity level
+- Add optional notes to each mood entry
+- View your mood history in a clean, card-based layout
+- Track emotional patterns over time
+- Edit or delete previous mood entries
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests! 
+Feel free to submit issues and enhancement requests!
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 
